@@ -11,17 +11,20 @@ typedef struct
 typedef struct
 {
     persona dato;
-    struct nodo * siguiente;
+    struct nodo* siguiente;
 } nodo;
 
 //PROTOTIPADO
 persona cargarPersona();
-void cargarArchivo(FILE *archi, char nombre[]);
-void mostrarArchivo(FILE* archi, char nombre[]);
+void cargarArchivo(char nombre[]);
+void mostrarArchivo(char nombre[]);
 nodo* inicLista();
-void tomarPersona(FILE* archi, char nombre[], nodo* lista);
-nodo* recorreArchivo(persona personita);
-nodo* mostrarNodo(nodo* aux);
+nodo* listarPersona(char nombre[], nodo* lista);
+nodo* agregarPrincipio(nodo* lista, nodo* nuevoNodo);
+nodo* crearNodo(persona personita);
+void mostrarNodo(nodo* aux);
+void muestraLista(nodo* lista);
+nodo* ordenaLista(nodo* lista, nodo* nuevoNodo);
 
 int main()
 {
@@ -29,7 +32,7 @@ int main()
     int opc;
     char nombre[] = {"miArchivo,bin"};
     FILE* archi;
-    nodo* lista;
+    nodo* lista = inicLista(lista);
 
     //MENU
 
@@ -49,19 +52,21 @@ int main()
     {
 
     case 1: //Hacer un programa que lea de un archivo datos y los inserte en una lista
-      /*  cargarArchivo(archi, nombre);
-        mostrarArchivo(archi, nombre); */
-
-        lista = inicLista;
-        tomarPersona(archi, nombre, lista);
-
-        recorreLista(lista);
+        //cargarArchivo(nombre);
+        //mostrarArchivo(nombre);
 
 
+        lista = listarPersona(nombre, lista);
+        printf("LISTA SIN ORDENAR: ");
+
+        muestraLista(lista);
 
         break;
 
-    case 2:
+    case 2: //Hacer un programa que lea de un archivo datos y los inserte en una lista en forma ordenada
+
+
+
 
         break;
 
@@ -100,12 +105,12 @@ persona cargarPersona()
 }
 
 
-void cargarArchivo(FILE *archi, char nombre[])
+void cargarArchivo(char nombre[])
 {
 
     persona aux;
     char opc;
-    archi = fopen(nombre, "a+b");
+    FILE* archi = fopen(nombre, "a+b");
     if(archi!=NULL)
     {
         do
@@ -126,11 +131,12 @@ void cargarArchivo(FILE *archi, char nombre[])
     }
 }
 
-void mostrarArchivo(FILE* archi, char nombre[])
+void mostrarArchivo(char nombre[])
 {
     persona aux;
     int i = 1;
-    archi = fopen(nombre, "r+b");
+
+    FILE* archi = fopen(nombre, "r+b");
     if(archi != NULL)
     {
         do
@@ -156,35 +162,43 @@ void mostrarArchivo(FILE* archi, char nombre[])
     }
 }
 
-nodo* inicLista()
+nodo* inicLista(nodo* lista)
 {
-    return NULL;
+    lista = NULL;
+    return lista;
 }
 
-void tomarPersona(FILE* archi, char nombre[], nodo* lista){
+nodo* listarPersona(char nombre[], nodo* lista)
+{
 
     persona aux;
     nodo* nuevo;
-    archi = fopen(nombre, "rb");
-    if(archi != NULL){
-        while(!feof(archi)){
-                fread(&aux, sizeof(persona) , 1, archi);
-            if(!feof(archi)){
-                nuevo = recorreArchivo(aux);
-                lista = agregarPpio(lista,nuevo); //CREAR FUNCION DE AGREGAR UN NODO AL PRINCIPIO DE LA LISTA
+    FILE* archi = fopen(nombre, "rb");
+    if(archi != NULL)
+    {
+        while(!feof(archi))
+        {
+            fread(&aux, sizeof(persona), 1, archi);
+            if(!feof(archi))
+            {
+                nuevo = crearNodo(aux);
+
+                //lista = agregarPrincipio(lista,nuevo); //CREAR FUNCION DE AGREGAR UN NODO AL PRINCIPIO DE LA LISTA
+                lista = ordenaLista(lista, nuevo);
             }
         }
         fclose(archi);
     }
-    else{
+    else
+    {
         printf("\n\nError al abrir el archivo!\n");
         exit(0);
     }
-return lista;
+    return lista;
 
 }
 
-nodo* recorreArchivo(persona personita)
+nodo* crearNodo(persona personita)
 {
 
     nodo* aux = (nodo*)malloc(sizeof(nodo));
@@ -194,21 +208,76 @@ nodo* recorreArchivo(persona personita)
     return aux;
 }
 
+nodo* agregarPrincipio(nodo* lista, nodo* nuevoNodo)
+{
+    if (lista!=NULL)
+    {
+        nuevoNodo->siguiente = lista;
+        lista = nuevoNodo;
+    }
+    else
+    {
+        lista = nuevoNodo;
+    }
+    return lista;
+}
 
-nodo* mostrarNodo(nodo* aux)
+
+
+
+
+void mostrarNodo(nodo* aux)
 {
     persona personita;
     printf("\n-----NODO-----");
     printf("\nNOMBRE: %s", aux->dato.nombre);
     printf("\nEDAD: %i \n", aux->dato.edad);
 
-    return aux;
 }
 
-void recorreLista(nodo* lista){
+void muestraLista(nodo* lista)
+{
 
     nodo* aux = lista;
-    while ((aux->siguiente)!= NULL){
-        aux=mostrarNodo(aux);
+
+    while (aux != NULL)
+    {
+        mostrarNodo(aux);
+        aux = aux->siguiente;
     }
+}
+
+nodo* ordenaLista(nodo* lista, nodo* nuevoNodo)
+{
+    nodo* ante;
+    nodo* seg;
+    if (lista!=NULL)
+    {
+        if (strcmp(nuevoNodo->dato.nombre, lista->dato.nombre)<0)
+        {
+            lista = agregarPrincipio(lista, nuevoNodo);
+        }
+        else
+        {
+            ante = lista;
+            seg = lista->siguiente;
+
+            while((seg != NULL)&&(strcmp(nuevoNodo->dato.nombre,seg->dato.nombre)>0))
+            {
+                ante = seg;
+                seg = seg->siguiente;
+            }
+        nuevoNodo->siguiente = seg;
+        ante->siguiente = nuevoNodo;
+        }
+
+
+    }
+    else
+    {
+        lista = nuevoNodo;
+    }
+
+
+    return lista;
 }
