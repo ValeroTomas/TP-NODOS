@@ -77,7 +77,7 @@ int main()
 
         break;
 
-    case 3: //Hacer una funciÃ³n que retorne un 1 (uno) o 0 (cero) si existe un determinado elemento en una lista dada
+    case 3: //Hacer una función que retorne un 1 (uno) o 0 (cero) si existe un determinado elemento en una lista dada
 
         lista = listarPersona(nombre, lista, 1);
 
@@ -98,7 +98,7 @@ int main()
 
         break;
 
-    case 4://Hacer una funciÃ³n que intercale en orden los elementos de dos listas ordenadas generando una nueva lista. Se deben redireccionar los punteros, no se deben crear nuevos nodos con la funciÃ³n crearNodo().
+    case 4://Hacer una función que intercale en orden los elementos de dos listas ordenadas generando una nueva lista. Se deben redireccionar los punteros, no se deben crear nuevos nodos con la función crearNodo().
 
         //cargarArchivo(nombre);
         //cargarArchivo("lista2.bin");
