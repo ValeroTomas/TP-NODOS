@@ -19,20 +19,25 @@ persona cargarPersona();
 void cargarArchivo(char nombre[]);
 void mostrarArchivo(char nombre[]);
 nodo* inicLista();
-nodo* listarPersona(char nombre[], nodo* lista);
+nodo* listarPersona(char nombre[], nodo* lista, int opc);
 nodo* agregarPrincipio(nodo* lista, nodo* nuevoNodo);
 nodo* crearNodo(persona personita);
 void mostrarNodo(nodo* aux);
 void muestraLista(nodo* lista);
 nodo* ordenaLista(nodo* lista, nodo* nuevoNodo);
+int recorreLista(nodo* lista, char nombrePersona[]);
+nodo* cargarIntercalado(nodo* lista1, nodo* lista2, nodo* lista3);
 
 int main()
 {
     //VARIABLES
-    int opc;
-    char nombre[] = {"miArchivo,bin"};
+    int opc, flag;
+    char nombrePersona[20];
+    char nombre[] = {"miArchivo.bin"};
     FILE* archi;
     nodo* lista = inicLista(lista);
+    nodo* lista2 = inicLista(lista2);
+    nodo* lista3 = inicLista(lista3);
 
     //MENU
 
@@ -52,29 +57,62 @@ int main()
     {
 
     case 1: //Hacer un programa que lea de un archivo datos y los inserte en una lista
-        //cargarArchivo(nombre);
+        cargarArchivo(nombre);
+        cargarArchivo("lista2.bin");
         //mostrarArchivo(nombre);
 
+        lista = listarPersona(nombre, lista, 0);
+        lista2 = listarPersona("lista2.bin", lista2, 0);
 
-        lista = listarPersona(nombre, lista);
-        printf("LISTA SIN ORDENAR: ");
 
         muestraLista(lista);
+        muestraLista(lista2);
 
         break;
 
     case 2: //Hacer un programa que lea de un archivo datos y los inserte en una lista en forma ordenada
 
-
-
-
-        break;
-
-    case 3:
+        lista = listarPersona(nombre, lista, 1);
+        muestraLista(lista);
 
         break;
 
-    case 4:
+    case 3: //Hacer una función que retorne un 1 (uno) o 0 (cero) si existe un determinado elemento en una lista dada
+
+        lista = listarPersona(nombre, lista, 1);
+
+        printf("INGRESE EL NOMBRE DE LA PERSONA QUE QUIERE BUSCAR \n");
+        fflush(stdin);
+        gets(nombrePersona);
+        flag = recorreLista(lista, nombrePersona);
+
+        if (flag==1)
+        {
+            printf("\nLA PERSONA ESTA EN LA LISTA!\n");
+        }
+        else
+        {
+
+            printf("\nNO ESTA EN LA LISTA\n");
+        }
+
+        break;
+
+    case 4://Hacer una función que intercale en orden los elementos de dos listas ordenadas generando una nueva lista. Se deben redireccionar los punteros, no se deben crear nuevos nodos con la función crearNodo().
+
+        //cargarArchivo(nombre);
+        //cargarArchivo("lista2.bin");
+
+
+        lista = listarPersona(nombre, lista, 0);
+        lista2 = listarPersona("lista2.bin", lista2, 1);
+
+        lista3 = cargarIntercalado(lista, lista2, lista3);
+        //muestraLista(lista);
+        //printf("\nLISTA 2\n");
+        //muestraLista(lista2);
+        //printf("\nLISTA 3\n");
+        muestraLista(lista3);
 
         break;
 
@@ -168,9 +206,11 @@ nodo* inicLista(nodo* lista)
     return lista;
 }
 
-nodo* listarPersona(char nombre[], nodo* lista)
+nodo* listarPersona(char nombre[], nodo* lista, int opc)
 {
 
+    //DEFAULT / OPC = 0: Cargar normal
+    //SI OPC = 1 ENTONCES ORDENAR POR NOMBRE
     persona aux;
     nodo* nuevo;
     FILE* archi = fopen(nombre, "rb");
@@ -182,9 +222,14 @@ nodo* listarPersona(char nombre[], nodo* lista)
             if(!feof(archi))
             {
                 nuevo = crearNodo(aux);
-
-                //lista = agregarPrincipio(lista,nuevo); //CREAR FUNCION DE AGREGAR UN NODO AL PRINCIPIO DE LA LISTA
-                lista = ordenaLista(lista, nuevo);
+                if(opc == 1)
+                {
+                    lista = ordenaLista(lista, nuevo);
+                }
+                else
+                {
+                    lista = agregarPrincipio(lista,nuevo);
+                }
             }
         }
         fclose(archi);
@@ -267,8 +312,8 @@ nodo* ordenaLista(nodo* lista, nodo* nuevoNodo)
                 ante = seg;
                 seg = seg->siguiente;
             }
-        nuevoNodo->siguiente = seg;
-        ante->siguiente = nuevoNodo;
+            nuevoNodo->siguiente = seg;
+            ante->siguiente = nuevoNodo;
         }
 
 
@@ -280,4 +325,70 @@ nodo* ordenaLista(nodo* lista, nodo* nuevoNodo)
 
 
     return lista;
+}
+
+int recorreLista(nodo* lista, char nombrePersona[])
+{
+    int flag = 0;
+    nodo* aux = lista;
+    if (aux == NULL)
+    {
+        printf("LA LISTA NO ESTA CARGADA!");
+    }
+    else
+    {
+        while (aux != NULL && flag != 1)
+        {
+            if (strcmp(nombrePersona, aux->dato.nombre)==0)
+            {
+                flag = 1;
+            }
+            else
+            {
+                aux = aux->siguiente;
+            }
+        }
+    }
+    return flag;
+}
+
+nodo* cargarIntercalado(nodo* lista1, nodo* lista2, nodo* lista3)
+{
+
+    nodo* aux1 = lista1;
+    nodo* aux2 = lista2;
+    nodo* aux3 = lista3;
+    nodo* nuevo;
+    int flag = 0;
+
+    while(aux1 || aux2)
+    {
+        if(aux1 && aux2)
+        {
+            nuevo = crearNodo(aux1->dato);
+            aux3 = agregarPrincipio(aux3, nuevo);
+            aux1 = aux1->siguiente;
+
+            nuevo = crearNodo(aux2->dato);
+            aux3 = agregarPrincipio(aux3, nuevo);
+
+            aux2 = aux2->siguiente;
+        }
+        else if (aux1 && !aux2)
+        {
+            nuevo = crearNodo(aux1->dato);
+            aux3 = agregarPrincipio(aux3, nuevo);
+
+            aux1 = aux1->siguiente;
+        }
+        else if (!aux1 && aux2)
+        {
+            nuevo = crearNodo(aux2->dato);
+            aux3 = agregarPrincipio(aux3, nuevo);
+
+            aux2 = aux2->siguiente;
+        }
+    }
+
+    return aux3;
 }
